@@ -1,0 +1,95 @@
+﻿Captcha là một hình thức xác thực người dùng bằng cách chọn hình ảnh, nhập kí tự hoặc đơn giản nhất là tích vào ô 'Tôi không phải là người máy'. Mục đích là giúp trang web tránh bị các tool spam gửi dữ liệu làm server bị quá tải, hao tốn tài nguyên.<br><br>
+<iframe-border>
+    	<img src='https://dl.dropbox.com/s/02d0sns6lj0d7rm/hero-recaptcha-demo.gif' alt='hero-recaptcha-demo.gif'/>
+    <ten-anh>Google reCaptcha
+    </ten-anh>
+</iframe-border>
+
+Một trong những cách đơn giản nhất để tích hợp captcha vào trang web của bạn, đó là sử dụng reCaptcha của google. Do là một sản phẩm của google nên bạn có thể yên tâm về độ tin cậy.<br>
+
+<chapter>Bước 1: đăng kí</chapter>
+Đầu tiên bạn hãy vào <a href='https://www.google.com/recaptcha/admin' target='_blank'>địa chỉ này</a>, đăng nhập tài khoản google và đăng ký một site mới.
+Nhập tên nhãn vào ô Label.
+Nhập các domain bạn muốn sử dụng captcha vào ô Domain. Mỗi domain là một dòng. Nếu trang web đang chạy local thì nhập domain là localhost.
+<iframe-border>
+    	<img src='https://dl.dropbox.com/s/wacl8jaz1w8nmx3/captcha-register.PNG' alt='captcha-register.PNG'/>
+    <ten-anh>Đăng kí site sử dụng reCAPTCHA
+    </ten-anh>
+</iframe-border>
+
+<chapter>Bước 2: cấu hình</chapter>
+Lưu lại Site key và Secret key vào hai biến. Ở đây mình dùng biến $siteKey và $secretKey.
+Dán đoạn script sau vào cuối thẻ <bmp-tag>head</bmp-tag> của trang sử dụng captcha.
+
+<bmp-blockquote>
+&ltscript src='https://www.google.com/recaptcha/api.js'&gt&lt/script&gt
+</bmp-blockquote>
+
+Dán div mà google đưa ra vào form mà bạn muốn xác thực. Nhớ là dán ở trong form nhé.
+<iframe-border>
+    	<img src='https://dl.dropbox.com/s/xbo5sd1sqb67sq5/captcha-adding.PNG' alt='captcha-adding.PNG'/>
+    <ten-anh>Thông tin google gửi về
+    </ten-anh>
+</iframe-border>
+
+<chapter>Bước 3: kiểm tra dữ liệu</chapter>
+<bmp-blockquote>
+	<div>
+    	<pre>
+&lt?php
+//các thông tin mà google cấp khi đăng kí
+$api_url = 'https://www.google.com/recaptcha/api/siteverify';
+$siteKey = '6Le1nCYTAAAAAFYpOaNIXos-xZLzix02xs0XYeOW';
+$secretKey = '6Le1nCYTAAAAAEMJGeHnmfHWxOOmTyQex_gFtaBk';
+  
+//nếu người dùng submit form
+if(isset($_POST['submit']))
+{
+    //lấy dữ liệu mà reCAPTCHA post lên
+    $captcha = $_POST['g-recaptcha-response'];
+      
+    //lấy IP của người dùng
+    $remoteip = $_SERVER['REMOTE_ADDR'];
+    //trong trường hợp người dùng truy cập qua proxy thì lấy IP bằng cách này
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $remoteip = $_SERVER['HTTP_CLIENT_IP'];
+    } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $remoteip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+     
+    //tạo link kết nối để google kiểm tra captcha đúng hay không
+    $api_url = $api_url.'?secret='.$secretKey.'&response='.$captcha.'&remoteip='.$remoteip;
+
+    //lấy kết quả trả về từ link kết nối
+    $response = file_get_contents($api_url);
+
+    //dữ liệu trả về dạng json
+    $response = json_decode($response);
+
+    if(!isset($response-&gtsuccess))
+    {
+        echo 'Không kiểm tra được captcha';
+    }
+    if($response-&gtsuccess == true)
+    {
+        //Thực hiện hành động khi captcha đúng
+        echo 'Captcha đúng';
+    }else{
+        //Thực hiện hành động khi captcha sai
+        echo 'Captcha sai';
+    }
+}
+?&gt
+&lthead&gt
+    &ltscript src='https://www.google.com/recaptcha/api.js?hl=vi'&gt&lt/script&gt
+&lt/head&gt
+&ltform action='' method='POST'&gt
+    &ltdiv class='g-recaptcha' data-sitekey='&lt?php echo $siteKey?&gt'&gt&lt/div&gt
+    &ltinput type='submit' name='submit' value='Submit'&gt
+&lt/form&gt
+</pre>
+    </div>
+</bmp-blockquote>
+
+Đoạn code trên mình đã ghi kèm với chú thích. Nếu có bất cứ thắc măc hãy để lại bình luận qua form liên hệ của mình. Và đừng quên bấm captcha trước khi gửi <i class='fa fa-hand-peace-o fa-2x' aria-hidden='true'></i>
+<a href='http://site.phucbm.com/buiminhphuc.tk/' class='bmp-link-btn'>Gửi thắc mắc</a>
