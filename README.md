@@ -1,6 +1,6 @@
 # folio-2016
 
-Personal portfolio website built in 2016. Preserved as a memorial.
+Personal portfolio website built in 2016. Preserved as a memorial. 🕯️
 
 ## Structure
 
